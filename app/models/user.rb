@@ -6,7 +6,7 @@ class User < ApplicationRecord
   validates :email, presence: true, length: { maximum: 255 }, 
   format: { with: VALID_EMAIL_REGEX }, uniqueness: { case_sensitive: false }
   has_secure_password
-  validates :password, length: { minimum: 6 }
+  validates :password, length: { minimum: 6 }, allow_blank: true
 
   # Возвращает дайджест для указанной строки. 
   def User.digest(string)
@@ -27,6 +27,17 @@ class User < ApplicationRecord
     update_attribute(:remember_digest, User.digest(remember_token)) 
   end
 
+  # Возвращает хэш – дайджест указанной строки. 
+  def self.digest(string)
+    cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST : BCrypt::Engine.cost 
+    BCrypt::Password.create(string, cost: cost)
+  end
+
+  # Возвращает случайный токен. 
+  def self.new_token
+    SecureRandom.urlsafe_base64 
+  end
+
   # Возвращает true, если указанный токен соответствует дайджесту.
    def authenticated?(remember_token)
     return false if remember_digest.nil?
@@ -36,6 +47,19 @@ class User < ApplicationRecord
   # Забывает пользователя 
   def forget
     update_attribute(:remember_digest, nil) 
+  end
+
+  class << self
+    # Возвращает хэш – дайджест указанной строки. 
+    def digest(string)
+      cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST : BCrypt::Engine.cost 
+      BCrypt::Password.create(string, cost: cost)
+    end
+
+    # Возвращает случайный токен. 
+    def new_token
+      SecureRandom.urlsafe_base64
+    end
   end
 end
 

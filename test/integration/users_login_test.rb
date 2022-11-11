@@ -5,9 +5,11 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
   def setup
     @user = users(:michael)
   end
+  
   test "login with valid information followed by logout" do
     get login_path
-    post login_path, params:{ session: { email: @user.email, password: 'password' } }
+    post login_path, params:{ session: { email: @user.email, 
+      password: 'password' } }
     assert is_logged_in?
     assert_redirected_to @user
     follow_redirect!
@@ -27,15 +29,17 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
   end
 
   def log_in_as(user, password: 'password', remember_me: '1')
-    post login_path, params: { session: { email: user.email,
-                                          password: password,
-                                          remember_me: remember_me } }
+    post login_path, params: { session: { email: user.email, 
+      password: password, 
+      remember_me: remember_me } }
   end
 
   test "login with remembering" do 
     log_in_as(@user, remember_me: '1') 
     assert_not_nil cookies['remember_token']
     # assert_equal assigns(:user).remember_token, cookies['remember_token']
+    # assert_equal assigns(:user).remember_token, cookies['remember_token']
+    # assert_equal cookies['remember_token'], assigns(:user).remember_token
   end
 
   test "login without remembering" do 
